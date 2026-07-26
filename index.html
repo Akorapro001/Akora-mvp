@@ -33,6 +33,9 @@
     --blob-a: rgba(176,141,87,0.22);
     --blob-b: rgba(31,42,68,0.16);
     --icon-muted:#a9adb8;
+    --pill-bg: rgba(255,255,255,0.45);
+    --pill-bg-strong: rgba(255,255,255,0.75);
+    --pill-border: rgba(255,255,255,0.55);
     --blur: 18px;
   }
   html[data-theme="dark"]{
@@ -53,6 +56,9 @@
     --blob-a: rgba(217,185,124,0.28);
     --blob-b: rgba(75,99,150,0.30);
     --icon-muted:#5c6570;
+    --pill-bg: rgba(255,255,255,0.09);
+    --pill-bg-strong: rgba(255,255,255,0.16);
+    --pill-border: rgba(255,255,255,0.18);
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -147,9 +153,9 @@
   html[data-theme="dark"] .theme-toggle .icon-moon{display:block;}
   .header-cta{
     font-size:14px;font-weight:600;color:var(--navy);
-    border:1.5px solid rgba(31,42,68,0.35);border-radius:999px;
+    border:1.5px solid var(--pill-border);border-radius:999px;
     padding:8px 18px;text-decoration:none;
-    background:rgba(255,255,255,0.4);
+    background:var(--pill-bg);
     transition:background 0.15s ease, color 0.15s ease, border-color .15s ease;
   }
   .header-cta:hover{background:var(--navy-solid);color:#fff;border-color:var(--navy-solid);}
@@ -198,9 +204,9 @@
   .chips{display:flex;gap:8px;flex-wrap:wrap;}
   .chip{
     font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;
-    background:rgba(255,255,255,0.45);
+    background:var(--pill-bg);
     backdrop-filter:blur(8px);
-    border:1.5px solid rgba(255,255,255,0.55);
+    border:1.5px solid var(--pill-border);
     color:var(--navy);
     border-radius:999px;padding:7px 15px;cursor:pointer;
     transition:background 0.15s ease,border-color 0.15s ease,color 0.15s ease;
@@ -209,8 +215,8 @@
   .chip.active{background:var(--navy-solid);border-color:var(--navy-solid);color:#fff;}
   .sort-select{
     font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--navy);
-    border:1.5px solid rgba(255,255,255,0.55);border-radius:8px;padding:8px 12px;
-    background:rgba(255,255,255,0.45);
+    border:1.5px solid var(--pill-border);border-radius:8px;padding:8px 12px;
+    background:var(--pill-bg);
     backdrop-filter:blur(8px);
     cursor:pointer;
   }
@@ -219,7 +225,7 @@
   .verify-toggle{
     display:flex;align-items:center;justify-content:space-between;gap:8px;
     font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--navy);
-    background:rgba(255,255,255,0.35);
+    background:var(--pill-bg);
     backdrop-filter:blur(6px);
     border-left:2px solid var(--gold);
     padding:9px 11px;border-radius:0 6px 6px 0;cursor:pointer;
@@ -229,7 +235,7 @@
   .verify-toggle.open .arrow{transform:rotate(180deg);}
   .verify-detail{
     max-height:0;overflow:hidden;transition:max-height 0.22s ease;
-    font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.55;color:#4a4f45;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.55;color:var(--ink);
   }
   .verify-detail-inner{padding:9px 11px 2px;}
   .verify-detail b{color:var(--navy);}
@@ -245,10 +251,10 @@
   }
   .btn-primary:hover{background:var(--navy-solid-hover);}
   .btn-ghost{
-    color:var(--navy);border:1.5px solid rgba(31,42,68,0.3);
+    color:var(--navy);border:1.5px solid var(--pill-border);
     padding:13px 24px;border-radius:8px;font-size:15px;font-weight:600;
     text-decoration:none;
-    background:rgba(255,255,255,0.4);
+    background:var(--pill-bg);
     backdrop-filter:blur(8px);
   }
   .btn-ghost:hover{border-color:var(--navy-solid);}
@@ -313,10 +319,66 @@
   .photo img{
     position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   }
-  .photo-label{
+  .photo.has-photos{cursor:pointer;}
+  .photo-count{
+    position:absolute;top:10px;left:10px;
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#fff;
+    background:rgba(10,14,20,0.55);backdrop-filter:blur(6px);
+    padding:3px 8px;border-radius:999px;
+    z-index:2;
+  }
+
+  /* Lightbox */
+  .lightbox{
+    position:fixed;inset:0;z-index:300;display:none;
+    align-items:center;justify-content:center;
+    background:rgba(6,10,16,0.9);
+    backdrop-filter:blur(10px);
+    padding:16px;
+  }
+  .lightbox.open{display:flex;}
+  .lightbox-stage{
+    max-width:92vw;max-height:80vh;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+  }
+  .lightbox-stage img{
+    max-width:100%;max-height:76vh;object-fit:contain;
+    border-radius:14px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.55);
+  }
+  .lightbox-counter{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;color:#fff;
+    background:rgba(255,255,255,0.12);backdrop-filter:blur(8px);
+    padding:4px 12px;border-radius:999px;
+    border:1px solid rgba(255,255,255,0.2);
+  }
+  .lightbox-close{
+    position:fixed;top:18px;right:18px;
+    width:42px;height:42px;border-radius:50%;
+    background:rgba(255,255,255,0.12);backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.22);
+    color:#fff;font-size:18px;line-height:1;cursor:pointer;
+    z-index:301;
+  }
+  .lightbox-nav{
+    position:fixed;top:50%;transform:translateY(-50%);
+    width:46px;height:46px;border-radius:50%;
+    background:rgba(255,255,255,0.12);backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.22);
+    color:#fff;font-size:24px;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    z-index:301;
+  }
+  .lightbox-nav.hidden{display:none;}
+  .lightbox-prev{left:14px;}
+  .lightbox-next{right:14px;}
+  @media (max-width:640px){
+    .lightbox-stage img{max-height:64vh;}
+    .lightbox-nav{width:40px;height:40px;font-size:20px;}
+  }
     position:absolute;bottom:8px;left:10px;
     font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--navy);
-    background:rgba(255,255,255,0.75);backdrop-filter:blur(6px);
+    background:var(--pill-bg-strong);backdrop-filter:blur(6px);
     padding:2px 7px;border-radius:4px;
   }
 
@@ -327,7 +389,7 @@
     border:2px dashed var(--gold);
     display:flex;align-items:center;justify-content:center;
     transform:rotate(-9deg);
-    background:rgba(255,255,255,0.55);
+    background:var(--pill-bg-strong);
     backdrop-filter:blur(8px);
   }
   .stamp-inner{
@@ -343,8 +405,8 @@
   .price{font-family:'Fraunces',serif;font-weight:600;font-size:20px;color:var(--navy);}
   .type-tag{
     font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--muted);
-    border:1px solid rgba(31,42,68,0.18);border-radius:5px;padding:2px 7px;
-    background:rgba(255,255,255,0.35);
+    border:1px solid var(--pill-border);border-radius:5px;padding:2px 7px;
+    background:var(--pill-bg);
   }
   .locality{font-size:13.5px;color:var(--muted);margin-top:-4px;}
 
@@ -406,8 +468,8 @@
   <section class="hero">
     <div class="wrap hero-grid">
       <div>
-        <p class="eyebrow">Akora Protech · Warri, Delta State</p>
-        <h1>You can't inspect a property from Your current location?. So <span class="hl">someone who can </span> does it for you.</h1>
+        <p class="eyebrow">Akora Field File · Warri, Delta State</p>
+        <h1>You can't inspect a property from Lagos or abroad. So <span class="hl">someone you can name</span> does it first.</h1>
         <p class="lead">Every listing below was walked through by an Akora team member this month. No score. No app login. Just what we found, in plain words.</p>
         <div class="stat-pill" id="stat-pill">
           <span class="dot"></span> <span id="stat-count">6</span> properties · hand-verified · Warri &amp; Effurun
@@ -491,9 +553,19 @@
 <footer>
   <div class="wrap footer-grid glass">
     <p class="foot-note">This is an early, hand-checked pilot from Akora, based in Warri, Delta State — not an automated platform yet. Every listing above was reviewed manually.</p>
-    <p class="foot-contact">WhatsApp +234 9070637117 · Warri, Delta State</p>
+    <p class="foot-contact">WhatsApp +234 [XXX XXX XXXX] · Warri, Delta State</p>
   </div>
 </footer>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Property photo viewer">
+  <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close photo viewer">✕</button>
+  <button type="button" class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous photo">‹</button>
+  <div class="lightbox-stage">
+    <img id="lightbox-img" src="" alt="Property photo">
+    <div class="lightbox-counter" id="lightbox-counter"></div>
+  </div>
+  <button type="button" class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next photo">›</button>
+</div>
 
 <script>
 /* =========================================================
@@ -546,11 +618,10 @@ const LISTINGS = [
   },
   {
     id: "WR-004",
-    photo: "https://akorapro001.github.io/Akora-mvp/IMG-20260725-WA0001.jpg",
-    price: "₦6,000,000 / plot",
-    type: "Land — 3 plot",
-    locality: "Ibogidi - Udu LGA",
-    note: "C of O Registered. Family-held title — additional confirmation from all title-holders in progress.",
+    price: "₦12,500,000",
+    type: "Land — 600 sqm",
+    locality: "Osubi",
+    note: "Survey plan registered. Family-held title — additional confirmation from all title-holders in progress.",
     action: "Reserve — ₦50,000 deposit",
     fee: "Deposit fully refundable before title transfer"
   },
@@ -576,6 +647,13 @@ const LISTINGS = [
 
 const HOUSE_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H9v-6h6v6h2.5a1 1 0 0 0 1-1v-9"/></svg>`;
 
+// Supports either `photo: "url"` (single) or `photos: ["url1","url2",...]` (multiple) per listing.
+function getPhotos(l){
+  if (Array.isArray(l.photos) && l.photos.length) return l.photos;
+  if (l.photo) return [l.photo];
+  return [];
+}
+
 function waLink(listing){
   const msg = `Hi Akora, I'd like to ${listing.action.toLowerCase()} for ${listing.id} (${listing.type}, ${listing.locality}, ${listing.price}).`;
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
@@ -599,10 +677,13 @@ function renderListings(list){
     return;
   }
 
-  grid.innerHTML = data.map(l => `
+  grid.innerHTML = data.map(l => {
+    const photos = getPhotos(l);
+    return `
     <article class="card glass" data-listing="${l.id}">
-      <div class="photo">
-        ${l.photo ? `<img src="${l.photo}" alt="${l.type}, ${l.locality}" loading="lazy">` : HOUSE_ICON}
+      <div class="photo${photos.length ? ' has-photos' : ''}" ${photos.length ? `onclick="openLightbox('${l.id}')"` : ''}>
+        ${photos.length ? `<img src="${photos[0]}" alt="${l.type}, ${l.locality}" loading="lazy">` : HOUSE_ICON}
+        ${photos.length > 1 ? `<span class="photo-count">📷 ${photos.length}</span>` : ''}
         <span class="photo-label">Photo: ${l.id}</span>
         <div class="stamp">
           <div class="stamp-inner">
@@ -631,7 +712,8 @@ function renderListings(list){
         </div>
       </div>
     </article>
-  `).join("");
+  `;
+  }).join("");
 
   document.querySelectorAll(".card[data-listing]").forEach(card => {
     trackClick(card.dataset.listing, "view");
@@ -648,6 +730,59 @@ function toggleDetail(el){
     detail.style.maxHeight = "0px";
   }
 }
+
+/* Lightbox — click a card photo to view full-size, with prev/next for multi-photo listings */
+let lightboxPhotos = [];
+let lightboxIndex = 0;
+const lightboxEl = document.getElementById("lightbox");
+const lightboxImgEl = document.getElementById("lightbox-img");
+const lightboxCounterEl = document.getElementById("lightbox-counter");
+const lightboxPrevBtn = document.getElementById("lightbox-prev");
+const lightboxNextBtn = document.getElementById("lightbox-next");
+
+function openLightbox(listingId){
+  const listing = LISTINGS.find(l => l.id === listingId);
+  if(!listing) return;
+  lightboxPhotos = getPhotos(listing);
+  if(!lightboxPhotos.length) return;
+  lightboxIndex = 0;
+  updateLightbox();
+  lightboxEl.classList.add("open");
+  lightboxEl.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+  trackClick(listingId, "view_photo");
+}
+function closeLightbox(){
+  lightboxEl.classList.remove("open");
+  lightboxEl.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+function updateLightbox(){
+  lightboxImgEl.src = lightboxPhotos[lightboxIndex];
+  const multi = lightboxPhotos.length > 1;
+  lightboxCounterEl.style.display = multi ? "block" : "none";
+  lightboxCounterEl.textContent = `${lightboxIndex + 1} / ${lightboxPhotos.length}`;
+  lightboxPrevBtn.classList.toggle("hidden", !multi);
+  lightboxNextBtn.classList.toggle("hidden", !multi);
+}
+function lightboxGoPrev(){
+  lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+  updateLightbox();
+}
+function lightboxGoNext(){
+  lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
+  updateLightbox();
+}
+lightboxEl.addEventListener("click", (e) => { if(e.target === lightboxEl) closeLightbox(); });
+document.getElementById("lightbox-close").addEventListener("click", closeLightbox);
+lightboxPrevBtn.addEventListener("click", lightboxGoPrev);
+lightboxNextBtn.addEventListener("click", lightboxGoNext);
+document.addEventListener("keydown", (e) => {
+  if(!lightboxEl.classList.contains("open")) return;
+  if(e.key === "Escape") closeLightbox();
+  if(e.key === "ArrowLeft") lightboxGoPrev();
+  if(e.key === "ArrowRight") lightboxGoNext();
+});
 
 /* Filter + sort state */
 let activeHood = "all";
