@@ -320,6 +320,15 @@
     position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   }
   .photo.has-photos{cursor:pointer;}
+  .cover-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .play-badge{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:44px;height:44px;border-radius:50%;
+    background:rgba(10,14,20,0.55);backdrop-filter:blur(6px);
+    color:#fff;font-size:16px;
+    display:flex;align-items:center;justify-content:center;
+    z-index:2;
+  }
   .photo-count{
     position:absolute;top:10px;left:10px;
     font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#fff;
@@ -341,7 +350,7 @@
     max-width:92vw;max-height:80vh;
     display:flex;flex-direction:column;align-items:center;gap:12px;
   }
-  .lightbox-stage img{
+  .lightbox-stage img, .lightbox-stage video{
     max-width:100%;max-height:76vh;object-fit:contain;
     border-radius:14px;
     box-shadow:0 24px 60px rgba(0,0,0,0.55);
@@ -468,8 +477,8 @@
   <section class="hero">
     <div class="wrap hero-grid">
       <div>
-        <p class="eyebrow">Akora Protech · Warri, Delta State</p>
-        <h1>You can't inspect a property from your Current location?. So <span class="hl">someone who can </span> does it first.</h1>
+        <p class="eyebrow">Akora Field File · Warri, Delta State</p>
+        <h1>You can't inspect a property from Lagos or abroad. So <span class="hl">someone you can name</span> does it first.</h1>
         <p class="lead">Every listing below was walked through by an Akora team member this month. No score. No app login. Just what we found, in plain words.</p>
         <div class="stat-pill" id="stat-pill">
           <span class="dot"></span> <span id="stat-count">6</span> properties · hand-verified · Warri &amp; Effurun
@@ -553,7 +562,7 @@
 <footer>
   <div class="wrap footer-grid glass">
     <p class="foot-note">This is an early, hand-checked pilot from Akora, based in Warri, Delta State — not an automated platform yet. Every listing above was reviewed manually.</p>
-    <p class="foot-contact">WhatsApp +234 [9055682413] · Warri, Delta State</p>
+    <p class="foot-contact">WhatsApp +234 [XXX XXX XXXX] · Warri, Delta State</p>
   </div>
 </footer>
 
@@ -562,6 +571,7 @@
   <button type="button" class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous photo">‹</button>
   <div class="lightbox-stage">
     <img id="lightbox-img" src="" alt="Property photo">
+    <video id="lightbox-video" controls playsinline style="display:none;"></video>
     <div class="lightbox-counter" id="lightbox-counter"></div>
   </div>
   <button type="button" class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next photo">›</button>
@@ -618,16 +628,10 @@ const LISTINGS = [
   },
   {
     id: "WR-004",
-    photos: ["https://akorapro001.github.io/Akora-mvp/IMG-20260725-WA0003.jpg",
-            "https://akorapro001.github.io/Akora-mvp/IMG-20260725-WA0001.jpg",
-            "https://akorapro001.github.io/Akora-mvp/IMG-20260725-WA0004.jpg",
-            "https://akorapro001.github.io/Akora-mvp/IMG-20260725-WA0007.jpg",
-      
-    ],
-    price: "₦6,000,000 / 1 plot",
-    type: "Land — 3 plot",
-    locality: "Behind free indeed church, Igogidi - Udu LGA",
-    note: "C of O registered. Family-held title — additional confirmation from all title-holders in progress.",
+    price: "₦12,500,000",
+    type: "Land — 600 sqm",
+    locality: "Osubi",
+    note: "Survey plan registered. Family-held title — additional confirmation from all title-holders in progress.",
     action: "Reserve — ₦50,000 deposit",
     fee: "Deposit fully refundable before title transfer"
   },
@@ -653,11 +657,15 @@ const LISTINGS = [
 
 const HOUSE_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H9v-6h6v6h2.5a1 1 0 0 0 1-1v-9"/></svg>`;
 
-// Supports either `photo: "url"` (single) or `photos: ["url1","url2",...]` (multiple) per listing.
-function getPhotos(l){
-  if (Array.isArray(l.photos) && l.photos.length) return l.photos;
-  if (l.photo) return [l.photo];
-  return [];
+// Supports `photo`/`photos` (image URLs) and `video`/`videos` (video file URLs, e.g. .mp4) per listing.
+// Returns one ordered list: images first, then videos.
+function getMedia(l){
+  const photos = Array.isArray(l.photos) && l.photos.length ? l.photos : (l.photo ? [l.photo] : []);
+  const videos = Array.isArray(l.videos) && l.videos.length ? l.videos : (l.video ? [l.video] : []);
+  return [
+    ...photos.map(src => ({ type: "image", src })),
+    ...videos.map(src => ({ type: "video", src }))
+  ];
 }
 
 function waLink(listing){
@@ -684,12 +692,19 @@ function renderListings(list){
   }
 
   grid.innerHTML = data.map(l => {
-    const photos = getPhotos(l);
+    const media = getMedia(l);
+    const cover = media[0];
+    const coverHtml = !cover
+      ? HOUSE_ICON
+      : cover.type === "video"
+        ? `<video class="cover-video" src="${cover.src}" muted playsinline preload="metadata"></video><span class="play-badge">▶</span>`
+        : `<img src="${cover.src}" alt="${l.type}, ${l.locality}" loading="lazy">`;
+    const countIcon = cover && cover.type === "video" ? "🎬" : "📷";
     return `
     <article class="card glass" data-listing="${l.id}">
-      <div class="photo${photos.length ? ' has-photos' : ''}" ${photos.length ? `onclick="openLightbox('${l.id}')"` : ''}>
-        ${photos.length ? `<img src="${photos[0]}" alt="${l.type}, ${l.locality}" loading="lazy">` : HOUSE_ICON}
-        ${photos.length > 1 ? `<span class="photo-count">📷 ${photos.length}</span>` : ''}
+      <div class="photo${media.length ? ' has-photos' : ''}" ${media.length ? `onclick="openLightbox('${l.id}')"` : ''}>
+        ${coverHtml}
+        ${media.length > 1 ? `<span class="photo-count">${countIcon} ${media.length}</span>` : ''}
         <span class="photo-label">Photo: ${l.id}</span>
         <div class="stamp">
           <div class="stamp-inner">
@@ -737,11 +752,12 @@ function toggleDetail(el){
   }
 }
 
-/* Lightbox — click a card photo to view full-size, with prev/next for multi-photo listings */
-let lightboxPhotos = [];
+/* Lightbox — click a card photo to view full-size, with prev/next for multi-item listings */
+let lightboxMedia = [];
 let lightboxIndex = 0;
 const lightboxEl = document.getElementById("lightbox");
 const lightboxImgEl = document.getElementById("lightbox-img");
+const lightboxVideoEl = document.getElementById("lightbox-video");
 const lightboxCounterEl = document.getElementById("lightbox-counter");
 const lightboxPrevBtn = document.getElementById("lightbox-prev");
 const lightboxNextBtn = document.getElementById("lightbox-next");
@@ -749,8 +765,8 @@ const lightboxNextBtn = document.getElementById("lightbox-next");
 function openLightbox(listingId){
   const listing = LISTINGS.find(l => l.id === listingId);
   if(!listing) return;
-  lightboxPhotos = getPhotos(listing);
-  if(!lightboxPhotos.length) return;
+  lightboxMedia = getMedia(listing);
+  if(!lightboxMedia.length) return;
   lightboxIndex = 0;
   updateLightbox();
   lightboxEl.classList.add("open");
@@ -762,21 +778,33 @@ function closeLightbox(){
   lightboxEl.classList.remove("open");
   lightboxEl.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
+  lightboxVideoEl.pause();
 }
 function updateLightbox(){
-  lightboxImgEl.src = lightboxPhotos[lightboxIndex];
-  const multi = lightboxPhotos.length > 1;
+  lightboxVideoEl.pause();
+  const item = lightboxMedia[lightboxIndex];
+  if(item.type === "video"){
+    lightboxImgEl.style.display = "none";
+    lightboxVideoEl.style.display = "block";
+    lightboxVideoEl.src = item.src;
+  } else {
+    lightboxVideoEl.style.display = "none";
+    lightboxVideoEl.removeAttribute("src");
+    lightboxImgEl.style.display = "block";
+    lightboxImgEl.src = item.src;
+  }
+  const multi = lightboxMedia.length > 1;
   lightboxCounterEl.style.display = multi ? "block" : "none";
-  lightboxCounterEl.textContent = `${lightboxIndex + 1} / ${lightboxPhotos.length}`;
+  lightboxCounterEl.textContent = `${lightboxIndex + 1} / ${lightboxMedia.length}`;
   lightboxPrevBtn.classList.toggle("hidden", !multi);
   lightboxNextBtn.classList.toggle("hidden", !multi);
 }
 function lightboxGoPrev(){
-  lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+  lightboxIndex = (lightboxIndex - 1 + lightboxMedia.length) % lightboxMedia.length;
   updateLightbox();
 }
 function lightboxGoNext(){
-  lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
+  lightboxIndex = (lightboxIndex + 1) % lightboxMedia.length;
   updateLightbox();
 }
 lightboxEl.addEventListener("click", (e) => { if(e.target === lightboxEl) closeLightbox(); });
