@@ -457,6 +457,14 @@
   .foot-note{font-size:13px;color:var(--muted);max-width:52ch;}
   .foot-contact{font-size:13.5px;color:var(--navy);font-weight:600;}
 </style>
+<!-- Analytics: paste your GA4 Measurement ID below (from analytics.google.com) to activate. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
 </head>
 <body>
 
@@ -571,7 +579,7 @@
   <button type="button" class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous photo">‹</button>
   <div class="lightbox-stage">
     <img id="lightbox-img" src="" alt="Property photo">
-    <video id="lightbox-video"controls playsinline controlsList="nodownload noremoteplayback" disablePictureInPicture oncontextmenu="return false" style="display:none;"> </video>
+    <video id="lightbox-video" controls playsinline controlsList="nodownload noremoteplayback" disablePictureInPicture oncontextmenu="return false" style="display:none;"></video>
     <div class="lightbox-counter" id="lightbox-counter"></div>
   </div>
   <button type="button" class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next photo">›</button>
@@ -682,10 +690,12 @@ function waLink(listing){
 }
 
 function trackClick(listingId, action){
-  // MVP-stage tracking: logs to console so you can see it working today.
-  // Swap this for Plausible/GA4/a simple Google Sheet webhook once ready —
-  // the important behavioral signal for the test is: views vs. WhatsApp clicks vs. actual replies.
+  // Sends every listing view, WhatsApp click, photo view, and detail expand to Google Analytics,
+  // plus logs to console so you can spot-check it while testing on your own phone.
   console.log(`[akora-mvp] listing=${listingId} action=${action} at=${new Date().toISOString()}`);
+  if(typeof gtag === "function"){
+    gtag('event', action, { listing_id: listingId });
+  }
 }
 
 function renderListings(list){
